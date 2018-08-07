@@ -82,8 +82,11 @@ def read_config(filename):
         line = fd.readline()
         if not line:
             break
-        
+
         seg = line.split()
+        if len(seg) == 0:
+            break;
+        
         mid.append(float(seg[0]))
         pkpk.append(float(seg[1]))
         freq.append(float(seg[2]))
