@@ -1,0 +1,21 @@
+#Pictures
+*.png
+*.jpg
+*.bmp
+
+#videos
+*.avi
+
+*.log
+
+*/bin/*
+*/build/*
+
+#data files
+*/data/*
+
+#temporary files
+*~
+
+#python byte files
+*.pyc

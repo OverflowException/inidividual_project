@@ -1,0 +1,21 @@
+Usage:
+1. Generate profile
+   python python/gen_profile [config] [profile]
+
+2. Check profile plot
+   python python/plot_xy.py [profile]
+
+3. Add .txt suffix, Convert LF line terminator to CRLF
+   cp ....; unix2dos [profile]
+
+
+
+
+todo:
+1. x position remains constant in this version. Try to make it variable
+2. Write another set of python scripts to generate different kinds of config files
+
+
+On pantograph test rig:
+If a profile is loaded for the first time, just load it.
+If loaded for the second or more times, go find it in the default 'Configuration Files' folder
