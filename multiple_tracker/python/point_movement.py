@@ -16,7 +16,9 @@ if len(sys.argv) != 2:
     sys.exit()
 
 tracks_x, tracks_y, obj_count = ext.extract(sys.argv[1])
-    
+
+print("Total " + str(len(tracks_x[0])) + " track points for each track.")
+
 #Calculate phase shift
 phshift, _, _ = ps.phshift(tracks_y[0][:], tracks_y[5][:])
 print("phase shift of y between object 0 and 5: " + str(phshift))
@@ -47,26 +49,22 @@ y_time_plot.grid()
 time_domain_fig.suptitle("Tracking point movement", fontsize = 20);
 time_domain_fig.show()
 
-# #perform FFT transform
-# spect_0 = np.fft.fft(obj_y_tracks[0])
-# mag_0 = np.abs(spect_0)
-# phase_0 = np.angle(spect_0)
+#######################################
 
-# spect_5 = np.fft.fft(obj_y_tracks[5])
-# mag_5 = np.abs(spect_5)
-# phase_5 = np.angle(spect_5)
 
-# phase_diff = phase_0 - phase_5
+#perform FFT transform
+spect_0 = np.fft.fft(tracks_y[0])
+#Eliminate DC
+spect_0[:-1] = spect_0[1:]
+mag_0 = np.abs(spect_0)
+phase_0 = np.angle(spect_0)
 
-# freq_domain_fig, (x_freq_plot, y_freq_plot)= plt.subplots(nrows = 2, ncols = 1)
+freq_domain_fig, (mag_plot, phase_plot)= plt.subplots(nrows = 2, ncols = 1)
 
-# x_freq_plot.plot(mag_0)
-# x_freq_plot.plot(mag_5)
-# #y_freq_plot.plot(phase_diff)
-# y_freq_plot.plot(phase_0)
-# y_freq_plot.plot(phase_5)
+mag_plot.plot(mag_0)
+phase_plot.plot(phase_0)
 
-# freq_domain_fig.show()
+freq_domain_fig.show()
         
 # #Plot 4 graphs
 # fig, ((plt_word_corr, plt_word_accu), (plt_deletion_num, plt_insertion_num)) = plt.subplots(2, 2)
