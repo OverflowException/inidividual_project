@@ -3,11 +3,13 @@ set -e
 rois_info=()
 
 #Start the drawing process if --new parameter is set
+#Update rois
 if [[ "$1" = "--new" ]]
 then
     ./bin/selectroi ./images/panto.bmp ./config/rois
 fi
 
+#Else just update vid generation info with vid_templ
     
 #Read in rois file. Each line makes up an element of rois_info array
 rois_info=()

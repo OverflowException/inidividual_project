@@ -87,9 +87,6 @@ int main(int argc, char** argv)
   //Read paramter
   para_type para;
   read_config(ifs, para);
-
-  //Print Object number, To keep up with tracker data file format
-  std::cout << "#Object = 1" << std::endl;
     
   //Read image
   cv::Mat img_seed = cv::imread(argv[2]);
@@ -108,6 +105,12 @@ int main(int argc, char** argv)
       std::cout << "Cannot open video stream!" << std::endl;
       return 0;
     }
+  
+  //Print seed picture name
+  std::cout << "Seed picture: " << argv[2] << std::endl;
+  //Print Object number, To keep up with tracker data file format
+  std::cout << "#Object = 1" << std::endl;
+  
   //Insert seed image as the first frame
   writer << img_seed;
   
