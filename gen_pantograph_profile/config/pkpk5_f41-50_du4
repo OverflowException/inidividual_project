@@ -1,25 +1,15 @@
-#This is a test
 #Generate complete periods of sine waves.
 #Number of cycles round up to lower boundary integer.
 DeltaT(s) 0.001
 Midpoint(mm)   pk-pk(mm)	Frequency(Hz)	Duration(s)
 875.0	       5		4.1		4
-875.0	       0		4.1		1
 875.0	       5		4.2		4
-875.0	       0		4.2		1
 875.0	       5		4.3		4
-875.0	       0		4.3		1
 875.0	       5		4.4		4
-875.0	       0		4.4		1
 875.0	       5		4.5		4
-875.0	       0		4.5		1
 875.0	       5		4.6		4
-875.0	       0		4.6		1
 875.0	       5		4.7		4
-875.0	       0		4.7		1
 875.0	       5		4.8		4
-875.0	       0		4.8		1
 875.0	       5		4.9		4
-875.0	       0		4.9		1
 875.0	       5		5.0		4
 

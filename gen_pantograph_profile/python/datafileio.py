@@ -1,48 +1,5 @@
-def read_xy(filename):
-    """Extract profile data from pantograph profile.\nUsage: x, y, tstep, count = extract(filename)"""
-    
-    try:
-        fd = open(filename, 'r')
-    except IOError:
-        print("Cannot open " + filename)
-    
-    line = fd.readline()
-    while True:
-        seg = line.split()
-        #This line contains 2 segments
-        if len(seg) == 2:
-            #This is the 'DeltaT' line
-            if seg[0][0:6] == 'DeltaT':
-                tstep = float(seg[1])
-            #This is the 'Xpos(mm) Ypos(mm) header'
-            elif seg[0] == 'Xpos(mm)' and seg[1] == 'Ypos(mm)':
-                break
-        line = fd.readline()
-
-
-    x = []
-    y = []
-    count = 0
-        
-    #Read file
-    while True:
-        line = fd.readline()
-        if not line:
-            break;
-
-        line_seg1, line_seg2 = line.split()
-    
-        x.append(float(line_seg1))
-        y.append(float(line_seg2))
-
-        count += 1
-    
-    fd.close()
-
-    return x, y, tstep, count
-
 def read_config(filename):
-    """Extract config data from config files.\n Usage mid, pkpk, freq, duration, tstep = extract_config(filename)"""
+    """Extract config data from config files.\n Usage mid, pkpk, freq, duration, tstep = read_config(filename)"""
     
     try:
         fd = open(filename, 'r')
@@ -96,6 +53,49 @@ def read_config(filename):
     fd.close()
             
     return mid, pkpk, freq, duration, tstep
+
+def read_profile(filename):
+    """Extract profile data from pantograph profile.\nUsage: x, y, tstep, count = read_profile(filename)"""
+    
+    try:
+        fd = open(filename, 'r')
+    except IOError:
+        print("Cannot open " + filename)
+    
+    line = fd.readline()
+    while True:
+        seg = line.split()
+        #This line contains 2 segments
+        if len(seg) == 2:
+            #This is the 'DeltaT' line
+            if seg[0][0:6] == 'DeltaT':
+                tstep = float(seg[1])
+            #This is the 'Xpos(mm) Ypos(mm) header'
+            elif seg[0] == 'Xpos(mm)' and seg[1] == 'Ypos(mm)':
+                break
+        line = fd.readline()
+
+
+    x = []
+    y = []
+    count = 0
+        
+    #Read file
+    while True:
+        line = fd.readline()
+        if not line:
+            break;
+
+        line_seg1, line_seg2 = line.split()
+    
+        x.append(float(line_seg1))
+        y.append(float(line_seg2))
+
+        count += 1
+    
+    fd.close()
+
+    return x, y, tstep, count
 
 def write_profile(filename, x_pos, y_pos, tstep, precision):
     try:
