@@ -1,12 +1,3 @@
-/*----------------------------------------------
- * Usage:
- * example_tracking_multitracker <video_name> [algorithm]
- *
- * example:
- * example_tracking_multitracker Bolt/img/%04d.jpg
- * example_tracking_multitracker faceocc2.webm KCF
- *--------------------------------------------------*/
-
 #include <opencv2/core/utility.hpp>
 #include <opencv2/tracking.hpp>
 #include <opencv2/videoio.hpp>
@@ -106,7 +97,6 @@ int main( int argc, char** argv )
   if(algo_name.empty())
     algo_name = "MEDIAN_FLOW";
 
-
   //Capture first frame
   VideoCapture cap(video_name);
   Mat frame;
@@ -147,15 +137,17 @@ int main( int argc, char** argv )
   vector<vector<Point>> obj_tracks(objects.size()); //Tracks of objects
   Point pt_buf;
   
-  // do the tracking
+  //Print necessary messages. Including Initial object position
   cout << "Tracking algorithm: " << algo_name << endl;  
   std::cout << "#Object = " << objects.size() << std::endl;
-  
+  for(const Rect& rect : rois)
+    cout << (rect.tl() + rect.br()) / 2 << endl;
+    
   for ( ;; )
     {
       //get frame from the video
       cap >> frame;
-
+      
       //stop the program if no more images
       if(frame.empty())
   	break;
@@ -187,7 +179,7 @@ int main( int argc, char** argv )
       //Draw tracks
       for(const auto& track : obj_tracks)
       	for(const auto& point : track)
-      	  circle(frame, point, 1, Scalar(255, 255, 255));
+      	  circle(frame, point, 1, Scalar(255, 255, 255), CV_FILLED);
       
       
       //show image with the tracked object
