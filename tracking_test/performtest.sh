@@ -8,10 +8,5 @@ fi
 
 BIN_PATH=../multiple_tracker/bin
 
-vid_names=(`ls ./config/vid`)
-roi_names=(`ls ./config/roi`)
-for i in "${!vid_names[@]}"
-do
-    `${BIN_PATH}/multitracker ./videos/${vid_names[$i]}.avi -r ./config/roi/${roi_names[$i]} -a $1 > ./data/test/${vid_names[$i]}`
-done
+${BIN_PATH}/multitracker ./videos/test.avi -r ./config/roi -a $1 > ./data/test
 

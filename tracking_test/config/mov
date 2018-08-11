@@ -1,0 +1,9 @@
+NFRAME	600
+FPS	30
+
+#x and y translation component, linear combinations of AMP*sine(2*PI*FREQ*t), t in seconds
+AMP_X  	 15	     5		10
+AMP_Y	 5	     15		10
+FREQ_X	 1	     2		3
+FREQ_Y	 1	     2		3
+ROT	 5

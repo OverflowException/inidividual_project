@@ -1,46 +1,42 @@
 set -e
 
-rois_info=()
-
-#Start the drawing process if --new parameter is set
-#Update rois
-if [[ "$1" = "--new" ]]
+if [ "$#" -lt 1 ]
 then
-    ./bin/selectroi ./images/panto.bmp ./config/rois
+    echo "Usage: $0 <seed image> [--new]"
+    exit
 fi
 
-#Else just update vid generation info with vid_templ
+roi_info=()
+
+#Start the drawing process if --new parameter is set
+#Update roi
+if [[ "$2" = "--new" ]]
+then
+    ./bin/selectroi $1 ./config/roi
+fi
+
+#Update vid generation info with mov
     
-#Read in rois file. Each line makes up an element of rois_info array
-rois_info=()
+#Read in rois file. Each line makes up an element of roi_info array
+roi_info=()
 while IFS= read -r info
 do
-    rois_info+=("$info")    
-done < ./config/rois
+    roi_info+=("$info")    
+done < ./config/roi
 
+#Check number of roi. Should only have 1 roi
+if [ "${#roi_info[@]}" -ne 1 ]
+then
+    echo "${#roi_info[@]} rois selected! Should only be 1!"
+    exit
+fi
 
-#Generate separate roi configuration files
-for i in "${!rois_info[@]}"
-do
-    echo -e ${rois_info[$i]} > ./config/roi/roi${i}
-done
+#Generate CENTER
+params=(${roi_info[0]})
+let center_x="${params[0]}+${params[2]}/2"
+let center_y="${params[1]}+${params[3]}/2"
+CENTER="CENTER\t${center_x}\t${center_y}"
 
-#Generate a corresponding video configuration file 
-for i in "${!rois_info[@]}"
-do
-    params=(${rois_info[$i]})
-    
-    #Generate CENTER
-    let center_x="${params[0]}+${params[2]}/2"
-    let center_y="${params[1]}+${params[3]}/2"
-    CENTER="CENTER\t${center_x}\t${center_y}"
-
-    #GENERATE RECT
-    RECT="RECT\t${params[2]}\t${params[3]}"
-
-    #Generate video configuration file based on vid_templ
-    vid_config_file=./config/vid/vid${i}
-    cp -f ./config/vid_templ $vid_config_file
-    echo -e $CENTER >> $vid_config_file
-    echo -e $RECT >> $vid_config_file
-done
+#Generate vid file
+cp -f ./config/mov ./config/vid
+echo -e ${CENTER} >> ./config/vid
