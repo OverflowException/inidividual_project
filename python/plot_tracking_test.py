@@ -2,10 +2,12 @@ import sys
 import re
 import matplotlib.pyplot as plt
 import numpy as np
-import datafileio as dio
 import phshift as ps
 import itertools as itt
 import math
+import datafileio as dio
+import numana as na
+
 
 if len(sys.argv) != 3:
     print("Usage: python" + sys.argv[0] + " [gen track] [test track]")
@@ -21,44 +23,75 @@ if obj_count_gen != 1 or obj_count_test != 1:
     sys.exit()
 
 
-#Total number of tracking points per object
-p_count = len(track_x_gen[0])
 #Time axis values and frequency axis value
-time_axis = np.linspace(0, p_count / fps, p_count)
-freq_axis = np.linspace(0, fps / 2, p_count / 2 + 1)
+time_axis = np.linspace(0, len(track_x_gen[0]) / fps, len(track_x_gen[0]))
+    
+mag_x_gen, phase_x_gen, eng_x_gen, freq_axis = na.fft_scaled(track_x_gen[0], fps)
+mag_y_gen, phase_y_gen, eng_y_gen, _ = na.fft_scaled(track_y_gen[0], fps)
+mag_x_test, phase_x_test, eng_x_test, _ = na.fft_scaled(track_x_test[0], fps)
+mag_y_test, phase_y_test, eng_y_test, _ = na.fft_scaled(track_y_test[0], fps)
 
-#DC filtering
-dc_x_gen = sum(track_x_gen[0]) / len(track_x_gen[0])
-dc_y_gen = sum(track_y_gen[0]) / len(track_y_gen[0])
-dc_x_test = sum(track_x_test[0]) / len(track_x_test[0])
-dc_y_test = sum(track_y_test[0]) / len(track_y_test[0])
+dc_x_gen = mag_x_gen[0]
+mag_x_gen[0] = 0
+dc_y_gen = mag_y_gen[0]
+mag_y_gen[0] = 0
+dc_x_test = mag_x_test[0]
+mag_x_test[0] = 0
+dc_y_test = mag_y_test[0]
+mag_y_test[0] = 0
 
-track_x_gen[0] = [x - dc_x_gen for x in track_x_gen[0]]
-track_y_gen[0] = [y - dc_y_gen for y in track_y_gen[0]]
-track_x_test[0] = [x - dc_x_test for x in track_x_test[0]]
-track_y_test[0] = [y - dc_y_test for y in track_y_test[0]]
-
-#Generate spectrum of all x, y track
-spect_x_gen = np.fft.rfft(track_x_gen[0])
-mag_x_gen = np.abs(spect_x_gen)
-
-spect_y_gen = np.fft.rfft(track_y_gen[0])
-mag_y_gen = np.abs(spect_y_gen)
-
-spect_x_test = np.fft.rfft(track_x_test[0])
-mag_x_test = np.abs(spect_x_test)
-
-spect_y_test = np.fft.rfft(track_y_test[0])
-mag_y_test = np.abs(spect_y_test)
-
-#Normalize all spectrums
-mag_scale = p_count / 2
+#Eliminate tiny fluctuations in ground truth
 for i in range(len(mag_x_gen)):
-    mag_x_gen[i] = mag_x_gen[i] / mag_scale
-    mag_y_gen[i] = mag_y_gen[i] / mag_scale
-    mag_x_test[i] = mag_x_test[i] / mag_scale
-    mag_y_test[i] = mag_y_test[i] / mag_scale
+    mag_x_gen[i] = 0 if mag_x_gen[i] < 0.05 else mag_x_gen[i]
+    mag_y_gen[i] = 0 if mag_y_gen[i] < 0.05 else mag_y_gen[i]
 
+#Get peak location
+peak_x_gen, _ = na.get_extrema(mag_x_gen)
+peak_y_gen, _ = na.get_extrema(mag_y_gen)
+
+#Print DC info
+print("\nX DC component")
+print("Ground(deg)\tTracked(deg)\tError rate")
+print("%f\t%f\t%f" % (dc_x_gen, dc_x_test, abs(dc_x_gen - dc_x_test) / dc_x_gen))
+
+print("\nY DC component")
+print("Ground(deg)\tTracked(deg)\tError Rate")
+print("%f\t%f\t%f" % (dc_y_gen, dc_y_test, abs(dc_y_gen - dc_y_test) / dc_y_gen))
+
+#Print AC magnitude info
+print("\nX AC component magnitude:")
+print("Frequency(Hz)\tGround(pix)\tTracked(pix)\tError Rate")
+for i in range(len(peak_x_gen)):
+    peak_loc = peak_x_gen[i]
+    print("%f\t%f\t%f\t%f" % (freq_axis[peak_loc], mag_x_gen[peak_loc], mag_x_test[peak_loc], abs((mag_x_gen[peak_loc] - mag_x_test[peak_loc]) / mag_x_gen[peak_loc])))
+
+print("\nY AC component magnitude:")
+print("Frequency(Hz)\tGround(pix)\tTracked(pix)\tError Rate")
+for i in range(len(peak_y_gen)):
+    peak_loc = peak_y_gen[i]
+    print("%f\t%f\t%f\t%f" % (freq_axis[peak_loc], mag_y_gen[peak_loc], mag_y_test[peak_loc], abs((mag_y_gen[peak_loc] - mag_y_test[peak_loc]) / mag_y_gen[peak_loc])))
+    
+#Print AC phase info
+print("\nX AC components phase:")
+print("Frequency(Hz)\tGround(deg)\tTracked(deg)\tError Rate")
+for i in range(len(peak_x_gen)):
+    peak_loc = peak_x_gen[i]
+    print("%f\t%f\t%f\t%f" % (freq_axis[peak_loc], phase_x_gen[peak_loc], phase_x_test[peak_loc], abs((phase_x_gen[peak_loc] - phase_x_test[peak_loc]) / phase_x_gen[peak_loc])))
+
+print("\nY AC components phase:")
+print("Frequency(Hz)\tGround(deg)\tTracked(deg)\tError Rate")
+for i in range(len(peak_y_gen)):
+    peak_loc = peak_y_gen[i]
+    print("%f\t%f\t%f\t%f" % (freq_axis[peak_loc], phase_y_gen[peak_loc], phase_y_test[peak_loc], abs((phase_y_gen[peak_loc] - phase_y_test[peak_loc]) / phase_y_gen[peak_loc])))
+
+#Print energy leakage
+#eng_x_clean = [mag_x_test[p] for p in [mag_x_gen[i] for i in peak_x_gen]]
+eng_x_clean = sum([mag_x_test[loc] ** 2 for loc in peak_x_gen])
+eng_y_clean = sum([mag_y_test[loc] ** 2 for loc in peak_y_gen])
+print("Energy Leakage Rate:")
+print("X: %f" %(1 - (eng_x_clean + dc_x_test ** 2) / sum(eng_x_test)))
+print("Y: %f" %(1 - (eng_y_clean + dc_y_test ** 2) / sum(eng_y_test)))
+    
 #Plot x movement related data
 x_mov_fig, x_plots = plt.subplots(nrows = 2, ncols = 2)
 x_plots[0, 0].plot(time_axis, track_x_gen[0])
@@ -85,8 +118,6 @@ for i in range(2):
     
 x_mov_fig.suptitle("X Trajectory", fontsize = 20)
 x_mov_fig.show()
-
-
 
 #Plot y movement related data
 y_mov_fig, y_plots = plt.subplots(nrows = 2, ncols = 2)
