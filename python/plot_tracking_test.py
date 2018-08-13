@@ -89,8 +89,8 @@ for i in range(len(peak_y_gen)):
 eng_x_clean = sum([mag_x_test[loc] ** 2 for loc in peak_x_gen])
 eng_y_clean = sum([mag_y_test[loc] ** 2 for loc in peak_y_gen])
 print("Energy Leakage Rate:")
-print("X: %f" %(1 - (eng_x_clean + dc_x_test ** 2) / sum(eng_x_test)))
-print("Y: %f" %(1 - (eng_y_clean + dc_y_test ** 2) / sum(eng_y_test)))
+print("X: %f" %(1 - eng_x_clean / (sum(eng_x_test) - dc_x_test ** 2)))
+print("Y: %f" %(1 - eng_y_clean / (sum(eng_y_test) - dc_y_test ** 2)))
     
 #Plot x movement related data
 x_mov_fig, x_plots = plt.subplots(nrows = 2, ncols = 2)
