@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 def fft_scaled(sig, fs):
     freq = np.linspace(0, fs, len(sig) + 1)
@@ -21,6 +22,11 @@ def get_extrema(sig):
         if diff[i - 1] < 0 and diff[i] > 0:
             valley.append(i)
     return peak, valley
+
+def profile_points(freq, duration, tstep):
+    ncycle = math.ceil(freq * duration)
+    npoint = int(math.ceil(ncycle / float(freq) / tstep))
+    return npoint
 
 def phshift(sig1, sig2):
     """Calculate phase shift between sine wave signal. Parameters pass by reference."""
@@ -60,7 +66,14 @@ def phshift(sig1, sig2):
 
     #Return phase shift and normalized signals
     return phshift, sig1, sig2
-    
+
+def ratio_split(total, ratio):
+    result = []
+    for i in range(len(ratio)):
+        result.append(float(ratio[i]) / sum(ratio[i:]) * total)
+        result[-1] = int(round(result[-1]))
+        total -= result[-1]
+    return result
     
 def dc(sig):
     """Get DC component of a signal"""

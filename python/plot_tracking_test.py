@@ -2,7 +2,6 @@ import sys
 import re
 import matplotlib.pyplot as plt
 import numpy as np
-import phshift as ps
 import itertools as itt
 import math
 import datafileio as dio
@@ -13,8 +12,8 @@ if len(sys.argv) != 3:
     print("Usage: python" + sys.argv[0] + " [gen track] [test track]")
     sys.exit()
 
-track_x_gen, track_y_gen, obj_count_gen, fps= dio.read_tracks(sys.argv[1])
-track_x_test, track_y_test, obj_count_test, fps = dio.read_tracks(sys.argv[2])
+track_x_gen, track_y_gen, obj_count_gen, fps, _ = dio.read_tracks(sys.argv[1])
+track_x_test, track_y_test, obj_count_test, fps, _  = dio.read_tracks(sys.argv[2])
 
 if obj_count_gen != 1 or obj_count_test != 1:
     print("obj_count_gen = " + str(obj_count_gen))
@@ -88,7 +87,7 @@ for i in range(len(peak_y_gen)):
 #eng_x_clean = [mag_x_test[p] for p in [mag_x_gen[i] for i in peak_x_gen]]
 eng_x_clean = sum([mag_x_test[loc] ** 2 for loc in peak_x_gen])
 eng_y_clean = sum([mag_y_test[loc] ** 2 for loc in peak_y_gen])
-print("Energy Leakage Rate:")
+print("AC Energy Leakage Rate:")
 print("X: %f" %(1 - eng_x_clean / (sum(eng_x_test) - dc_x_test ** 2)))
 print("Y: %f" %(1 - eng_y_clean / (sum(eng_y_test) - dc_y_test ** 2)))
     

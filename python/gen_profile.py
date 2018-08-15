@@ -1,7 +1,7 @@
 import sys
 import datafileio as dio
 import math
-
+import numana as na
 
 if len(sys.argv) != 3:
     print("Usage: python" + sys.argv[0] + " [config] [profile]")
@@ -13,11 +13,10 @@ nforms = len(mid)
 
 #Number of data points for each wave form
 npoint = nforms * [0]
-for idx in range(nforms):
-    #Number of complete cycles
-    ncycle = round(freq[idx] * duration[idx])
-    npoint[idx] = int(math.floor(ncycle / float(freq[idx]) / tstep))
-
+for i in range(nforms):
+    #Number of complete cycles, slightly bigger
+    npoint[i] = na.profile_points(freq[i], duration[i], tstep)
+    
 #y position data
 #Allocate y position data. 2D array, nforms of rows. Each row has different number of data points
 y_pos = [[] for form in range(nforms)]
@@ -34,8 +33,6 @@ for form_idx in range(nforms):
     for data_idx in range(npoint[form_idx]):
         y_pos[form_idx][data_idx] = amp * math.sin(omega * t) + dc
         t += tstep
-
-
 
 x_pos = -20.0
 

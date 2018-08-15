@@ -1,15 +1,18 @@
 import re
 
-def read_tracks(filename):
+def read_tracks(filename, storeTracks = True):
     """pass data filename, return tracks of x tracks, y tracks, number of objects and fps"""
+    """Set storeTracks to False, will only read header. Saves time and space"""
     
     try:
         fd = open(filename, 'r')
     except IOError:
         print("Cannot open " + filename)
+        exit()
     
     #regular expressions
-    fps_pattern = re.compile("#FPS = (\d+)")    
+    fps_pattern = re.compile("#FPS = (\d+)")
+    frames_pattern = re.compile("#FRAMES = (\d+)")
     obj_pattern = re.compile("#Object = (\d+)")
     point_pattern = re.compile("\[(\d+\.?\d*), (\d+\.?\d*)\]")
 
@@ -18,22 +21,21 @@ def read_tracks(filename):
         #Irrelavent line
         if line[0] == '#':
             break
-    
+
     m = fps_pattern.search(line)
     fps = int(m.group(1))
+
+    line = fd.readline()
+    m = frames_pattern.search(line)
+    nframes = int(m.group(1))
     
     line = fd.readline()        
     m = obj_pattern.search(line)
     obj_count = int(m.group(1))
 
+    if not storeTracks:
+        return fd, obj_count, fps, nframes
     
-    # #Get object count
-    # line = fd.readline()
-    # while line[0] != '#':
-    #     line = fd.readline()
-    #     m = obj_pattern.search(line)
-    #     obj_count = int(m.group(1))
-
     #2D arrays, storing track of x and y respectively
     #e.g. structure of obj_x_tracks, m objects, n points each
     # [
@@ -46,19 +48,8 @@ def read_tracks(filename):
     #     [xm0, xm1, .... xmn]
     # ]
 
-    
     obj_x_tracks = [[] for row in range(obj_count)]
     obj_y_tracks = [[] for row in range(obj_count)]
-
-    
-
-    # obj_x_tracks = [];
-    # obj_y_tracks = [];
-
-    # for obj_idx in range(obj_count):
-    #     obj_x_tracks.append([])
-    #     obj_y_tracks.append([])
-
     
     #Read file
     obj_idx = 0
@@ -77,7 +68,7 @@ def read_tracks(filename):
     #Close file
     fd.close()
 
-    return obj_x_tracks, obj_y_tracks, obj_count, fps
+    return obj_x_tracks, obj_y_tracks, obj_count, fps, nframes
 
 
 def read_config(filename):
@@ -87,6 +78,7 @@ def read_config(filename):
         fd = open(filename, 'r')
     except IOError:
         print("Cannot open " + filename)
+        exit()
 
     mid = []
     pkpk = []
@@ -143,6 +135,7 @@ def read_profile(filename):
         fd = open(filename, 'r')
     except IOError:
         print("Cannot open " + filename)
+        exit()
     
     line = fd.readline()
     while True:
@@ -184,6 +177,7 @@ def write_profile(filename, x_pos, y_pos, tstep, precision):
         fd = open(filename, 'w')
     except IOError:
         print("Cannot open " + filename + " to write!")
+        exit()
 
     
     x_pos_str = (precision %x_pos)

@@ -9,19 +9,19 @@ import re
 import matplotlib.pyplot as plt
 import numpy as np
 import datafileio as dio
-import phshift as ps
+import numana as na
 
 if len(sys.argv) != 2:
     print("Usage: python" + sys.argv[0] + " [point log]")
     sys.exit()
 
-tracks_x, tracks_y, obj_count, _ = dio.read_tracks(sys.argv[1])
+tracks_x, tracks_y, obj_count, fps, nframes = dio.read_tracks(sys.argv[1])
 
-print("Total " + str(len(tracks_x[0])) + " track points for each track.")
+print("Total " + str(nframes) + " track points for each track.")
 
 #Calculate phase shift
-phshift, _, _ = ps.phshift(tracks_y[0][:], tracks_y[5][:])
-print("phase shift of y between object 0 and 5: " + str(phshift))
+#phshift, _, _ = na.phshift(tracks_y[0][:], tracks_y[5][:])
+#print("phase shift of y between object 0 and 5: " + str(phshift))
 
 #Time domain figure
 time_domain_fig, (x_time_plot, y_time_plot) = plt.subplots(nrows = 2, ncols = 1)
@@ -51,49 +51,20 @@ time_domain_fig.show()
 
 #######################################
 
-
 #perform FFT transform
-spect_0 = np.fft.fft(tracks_y[0])
+mag, phase, energy, freq = na.fft_scaled(tracks_y[5], fps)
 #Eliminate DC
-spect_0[:-1] = spect_0[1:]
-mag_0 = np.abs(spect_0)
-phase_0 = np.angle(spect_0)
-
+print("DC = %f" % (mag[0]))
+mag[0] = 0
 freq_domain_fig, (mag_plot, phase_plot)= plt.subplots(nrows = 2, ncols = 1)
 
-mag_plot.plot(mag_0)
-phase_plot.plot(phase_0)
+mag_plot.plot(freq, mag)
+mag_plot.grid()
+phase_plot.plot(freq, phase)
+phase_plot.grid()
+
+freq_domain_fig.suptitle("Object Y Movement Freq Component")
 
 freq_domain_fig.show()
-        
-# #Plot 4 graphs
-# fig, ((plt_word_corr, plt_word_accu), (plt_deletion_num, plt_insertion_num)) = plt.subplots(2, 2)
-# #plot word correcteness rate
-# plt_word_corr.plot(penalty, word_corr)
-# plt_word_corr.set_title("Word correctness")
-# plt_word_corr.set_xlabel("penalty")
-# plt_word_corr.set_ylabel("correct(%)")
-# plt_word_corr.grid()
-# #plot word accuracy rate
-# plt_word_accu.plot(penalty, word_accu)
-# plt_word_accu.set_title("Word accuracy")
-# plt_word_accu.set_xlabel("penalty")
-# plt_word_accu.set_ylabel("Accuracy(%)")
-# plt_word_accu.grid()
-# #deletion number
-# plt_deletion_num.plot(penalty, deletion_num)
-# plt_deletion_num.set_title("Number of deletion")
-# plt_deletion_num.set_xlabel("penalty")
-# plt_deletion_num.set_ylabel("number")
-# plt_deletion_num.grid()
-# #insertion number
-# plt_insertion_num.plot(penalty, insertion_num)
-# plt_insertion_num.set_title("Number of insertion")
-# plt_insertion_num.set_xlabel("penalty")
-# plt_insertion_num.set_ylabel("number")
-# plt_insertion_num.grid()
-
-# fig.suptitle(sys.argv[1], fontsize=20);
-# fig.show()
 
 raw_input("Press [Enter] to continue...")
